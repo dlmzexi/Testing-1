@@ -10,13 +10,11 @@
             background-color: #222;
             color: white;
             font-family: Arial, sans-serif;
-            overflow: hidden;
         }
         canvas {
             background: #000;
             display: block;
             margin: auto;
-            touch-action: none;
         }
         .menu {
             display: flex;
@@ -56,14 +54,49 @@
     </div>
 
     <script>
+        let canvas = document.getElementById("gameCanvas");
+        let ctx = canvas.getContext("2d");
+
+        let paddleWidth = 75, paddleHeight = 10;
+        let paddleX = (canvas.width - paddleWidth) / 2;
+        let rightPressed = false, leftPressed = false;
+
         function startGame() {
             document.getElementById("menu").classList.add("hidden");
             document.getElementById("gameContainer").classList.remove("hidden");
+            draw();
+        }
+
+        function drawPaddle() {
+            ctx.beginPath();
+            ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+            ctx.fillStyle = "#fff";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPaddle();
+            requestAnimationFrame(draw);
+        }
+
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+
+        function keyDownHandler(e) {
+            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
+            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
+        }
+
+        function keyUpHandler(e) {
+            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
+            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
         }
 
         function openLovePrompt() {
             document.body.innerHTML = `
-                <div class="love-container">
+                <div style="display: flex; align-items: center; justify-content: center; flex-direction: column; height: 100vh; background: linear-gradient(to bottom, #ff9a9e, #fad0c4); text-align: center; font-family: Arial, sans-serif;">
                     <h1>Can I court you? ❤️</h1>
                     <p>I've been waiting to ask you this... Will you give me the chance to prove my love? 💕</p>
                     <div class="buttons">
@@ -73,19 +106,8 @@
                 </div>
             `;
 
-            document.body.style.cssText = \`
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
-                height: 100vh;
-                background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
-                text-align: center;
-                font-family: Arial, sans-serif;
-            \`;
-
             let style = document.createElement("style");
-            style.innerHTML = \`
+            style.innerHTML = `
                 .yes {
                     font-size: 18px;
                     padding: 12px 20px;
@@ -116,18 +138,18 @@
                     0% { transform: translateY(100vh); opacity: 1; }
                     100% { transform: translateY(-10vh); opacity: 0; }
                 }
-            \`;
+            `;
             document.head.appendChild(style);
 
             let yesButtonSize = 18;
             window.sayYes = function () {
-                document.body.innerHTML = \`
+                document.body.innerHTML = `
                     <div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column;">
                         <h1>Yay! ❤️</h1>
                         <p>You just made me the happiest person alive! 😍</p>
                         <p>Can't wait to start this journey with you! 💕</p>
                     </div>
-                \`;
+                `;
             };
 
             window.moveNoButton = function () {
