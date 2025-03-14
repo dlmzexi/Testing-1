@@ -65,6 +65,7 @@
             background-color: #ff4d79;
             color: white;
             font-weight: bold;
+            transition: font-size 0.3s ease;
         }
 
         .yes:hover {
@@ -87,6 +88,7 @@
     </style>
     <script>
         let score = 0;
+        let yesButtonSize = 18;
 
         function startGame() {
             document.querySelector(".start-screen").style.display = "none";
@@ -132,6 +134,10 @@
             let y = Math.random() * (window.innerHeight - 50);
             btn.style.left = x + "px";
             btn.style.top = y + "px";
+            
+            let yesButton = document.querySelector(".yes");
+            yesButtonSize += 5;
+            yesButton.style.fontSize = yesButtonSize + "px";
         }
     </script>
 </head>
