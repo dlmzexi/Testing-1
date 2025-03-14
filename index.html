@@ -10,11 +10,13 @@
             background-color: #222;
             color: white;
             font-family: Arial, sans-serif;
+            overflow: hidden;
         }
         canvas {
             background: #000;
             display: block;
             margin: auto;
+            touch-action: none;
         }
         .menu {
             display: flex;
@@ -54,130 +56,159 @@
     </div>
 
     <script>
-        let canvas = document.getElementById("gameCanvas");
-        let ctx = canvas.getContext("2d");
+        const menu = document.getElementById("menu");
+        const gameContainer = document.getElementById("gameContainer");
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const levelDisplay = document.getElementById("level");
+        const livesDisplay = document.getElementById("lives");
 
-        let paddleWidth = 75, paddleHeight = 10;
-        let paddleX = (canvas.width - paddleWidth) / 2;
+        let ballX, ballY, ballDX, ballDY, ballRadius, paddleHeight, paddleWidth, paddleX;
         let rightPressed = false, leftPressed = false;
+        let level = 1, maxLevels = 3, lives = 3;
+        let brickRowCount, brickColumnCount = 5, brickWidth = 75, brickHeight = 20, brickPadding = 10, brickOffsetTop = 30, brickOffsetLeft = 30;
+        let bricks = [];
 
-        function startGame() {
-            document.getElementById("menu").classList.add("hidden");
-            document.getElementById("gameContainer").classList.remove("hidden");
+        function initializeGame() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height - 30;
+            ballDX = 2;
+            ballDY = -2;
+            ballRadius = 10;
+            paddleHeight = 10;
+            paddleWidth = 75;
+            paddleX = (canvas.width - paddleWidth) / 2;
+            brickRowCount = level + 1;
+            initializeBricks();
             draw();
         }
 
+        function initializeBricks() {
+            bricks = [];
+            for(let c = 0; c < brickColumnCount; c++) {
+                bricks[c] = [];
+                for(let r = 0; r < brickRowCount; r++) {
+                    let brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
+                    let brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
+                    bricks[c][r] = { x: brickX, y: brickY, status: 1 };
+                }
+            }
+        }
+
+        function startGame() {
+            menu.classList.add("hidden");
+            gameContainer.classList.remove("hidden");
+            initializeGame();
+        }
+
+        function drawBricks() {
+            let allCleared = true;
+            for(let c = 0; c < brickColumnCount; c++) {
+                for(let r = 0; r < brickRowCount; r++) {
+                    if (bricks[c][r].status === 1) {
+                        ctx.fillStyle = "red";
+                        ctx.fillRect(bricks[c][r].x, bricks[c][r].y, brickWidth, brickHeight);
+                        allCleared = false;
+                    }
+                }
+            }
+            if (allCleared) {
+                if (level < maxLevels) {
+                    if (confirm("Level cleared! Proceed to the next level?")) {
+                        level++;
+                        levelDisplay.textContent = level;
+                        initializeGame();
+                    } else {
+                        document.location.reload();
+                    }
+                } else {
+                    alert("Congratulations! You cleared all levels!");
+                    document.location.reload();
+                }
+            }
+        }
+
         function drawPaddle() {
+            ctx.fillStyle = "blue";
+            ctx.fillRect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+        }
+
+        function drawBall() {
             ctx.beginPath();
-            ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-            ctx.fillStyle = "#fff";
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = "white";
             ctx.fill();
             ctx.closePath();
         }
 
+        function collisionDetection() {
+            for(let c = 0; c < brickColumnCount; c++) {
+                for(let r = 0; r < brickRowCount; r++) {
+                    let brick = bricks[c][r];
+                    if (brick.status === 1) {
+                        if (ballX > brick.x && ballX < brick.x + brickWidth && ballY > brick.y && ballY < brick.y + brickHeight) {
+                            ballDY = -ballDY;
+                            brick.status = 0;
+                        }
+                    }
+                }
+            }
+        }
+
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBricks();
+            drawBall();
             drawPaddle();
+            collisionDetection();
+
+            if (ballX + ballDX > canvas.width - ballRadius || ballX + ballDX < ballRadius) {
+                ballDX = -ballDX;
+            }
+            if (ballY + ballDY < ballRadius) {
+                ballDY = -ballDY;
+            } else if (ballY + ballDY > canvas.height - paddleHeight - ballRadius) {
+                if (ballX > paddleX && ballX < paddleX + paddleWidth) {
+                    ballDY = -ballDY;
+                } else {
+                    lives--;
+                    livesDisplay.textContent = lives;
+                    if (lives === 0) {
+                        alert("Game Over!");
+                        document.location.reload();
+                    } else {
+                        ballX = canvas.width / 2;
+                        ballY = canvas.height - 30;
+                        ballDX = 2;
+                        ballDY = -2;
+                    }
+                }
+            }
+            ballX += ballDX;
+            ballY += ballDY;
             requestAnimationFrame(draw);
-        }
-
-        document.addEventListener("keydown", keyDownHandler, false);
-        document.addEventListener("keyup", keyUpHandler, false);
-
-        function keyDownHandler(e) {
-            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
-            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
-        }
-
-        function keyUpHandler(e) {
-            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
-            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
         }
 
         function openLovePrompt() {
             document.body.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; flex-direction: column; height: 100vh; background: linear-gradient(to bottom, #ff9a9e, #fad0c4); text-align: center; font-family: Arial, sans-serif;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: pink;">
                     <h1>Can I court you? ❤️</h1>
-                    <p>I've been waiting to ask you this... Will you give me the chance to prove my love? 💕</p>
-                    <div class="buttons">
-                        <button class="yes" id="yesButton" onclick="sayYes()">Yes 💖</button>
-                        <button class="no" id="noButton" onmouseover="moveNoButton()">No 😢</button>
-                    </div>
+                    <button onclick="sayYes()" style="font-size: 20px; padding: 10px;">Yes 💖</button>
+                    <button id="noButton" onmouseover="moveNoButton()" style="position: absolute;">No 😢</button>
                 </div>
             `;
 
-            let style = document.createElement("style");
-            style.innerHTML = `
-                .yes {
-                    font-size: 18px;
-                    padding: 12px 20px;
-                    border: none;
-                    cursor: pointer;
-                    background-color: #ff4d79;
-                    color: white;
-                    font-weight: bold;
-                    transition: 0.3s;
-                }
-                .yes:hover {
-                    background-color: #ff1a4d;
-                }
-                .no {
-                    background-color: #999;
-                    color: white;
-                    font-weight: bold;
-                    position: absolute;
-                    cursor: pointer;
-                }
-                .heart {
-                    position: absolute;
-                    color: rgba(255, 255, 255, 0.8);
-                    font-size: 30px;
-                    animation: floatUp 5s infinite;
-                }
-                @keyframes floatUp {
-                    0% { transform: translateY(100vh); opacity: 1; }
-                    100% { transform: translateY(-10vh); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
-
-            let yesButtonSize = 18;
             window.sayYes = function () {
-                document.body.innerHTML = `
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column;">
-                        <h1>Yay! ❤️</h1>
-                        <p>You just made me the happiest person alive! 😍</p>
-                        <p>Can't wait to start this journey with you! 💕</p>
-                    </div>
-                `;
+                document.body.innerHTML = `<h1 style="color: red;">Yay! You said Yes! ❤️</h1>`;
             };
 
             window.moveNoButton = function () {
                 let btn = document.getElementById("noButton");
                 let x = Math.random() * (window.innerWidth - 100);
                 let y = Math.random() * (window.innerHeight - 50);
-                btn.style.left = x + "px";
-                btn.style.top = y + "px";
-
-                let yesButton = document.getElementById("yesButton");
-                yesButtonSize += 5;
-                yesButton.style.fontSize = yesButtonSize + "px";
-                yesButton.style.padding = (yesButtonSize / 2) + "px " + (yesButtonSize) + "px";
+                btn.style.left = `${x}px`;
+                btn.style.top = `${y}px`;
             };
-
-            function createHearts() {
-                setInterval(() => {
-                    let heart = document.createElement("div");
-                    heart.classList.add("heart");
-                    heart.innerHTML = "❤️";
-                    heart.style.left = Math.random() * 100 + "vw";
-                    heart.style.animationDuration = (Math.random() * 3 + 2) + "s";
-                    document.body.appendChild(heart);
-                    setTimeout(() => heart.remove(), 5000);
-                }, 300);
-            }
-
-            createHearts();
         }
     </script>
 </body>
