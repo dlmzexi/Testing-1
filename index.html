@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can I Court You? ❤️</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background: url('https://i.imgur.com/WxVaEwl.jpg') no-repeat center center/cover;
+            overflow: hidden;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .block {
+            width: 60px;
+            height: 60px;
+            background-color: #ff4d79;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.3s;
+        }
+
+        .block:hover {
+            transform: scale(1.1);
+        }
+
+        .hidden-message {
+            display: none;
+            margin-top: 20px;
+            font-size: 24px;
+            color: black;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: none;
+            margin-top: 20px;
+        }
+
+        button {
+            font-size: 18px;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .yes {
+            background-color: #ff4d79;
+            color: white;
+            font-weight: bold;
+        }
+
+        .yes:hover {
+            background-color: #ff1a4d;
+        }
+
+        .no {
+            background-color: #999;
+            color: white;
+            position: absolute;
+        }
+
+        .loopy {
+            width: 150px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+    <script>
+        let blocksRemaining = 15;
+        let yesButtonSize = 18;
+
+        function removeBlock(block) {
+            block.style.opacity = "0";
+            setTimeout(() => block.remove(), 300);
+            blocksRemaining--;
+            
+            if (blocksRemaining === 0) {
+                document.querySelector(".hidden-message").style.display = "block";
+                document.querySelector(".buttons").style.display = "block";
+            }
+        }
+
+        function sayYes() {
+            document.body.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column;">
+                    <h1>Yay! ❤️</h1>
+                    <p>You just made me the happiest person alive! 😍</p>
+                    <img src="https://i.imgur.com/yzQ9C8U.png" alt="Loopy Happy" width="200">
+                </div>
+            `;
+        }
+
+        function moveNoButton() {
+            let btn = document.getElementById("noButton");
+            let x = Math.random() * (window.innerWidth - 100);
+            let y = Math.random() * (window.innerHeight - 50);
+            btn.style.left = x + "px";
+            btn.style.top = y + "px";
+
+            let yesButton = document.getElementById("yesButton");
+            yesButtonSize += 5;
+            yesButton.style.fontSize = yesButtonSize + "px";
+            yesButton.style.padding = (yesButtonSize / 2) + "px " + (yesButtonSize) + "px";
+        }
+    </script>
+</head>
+<body>
+    <audio id="bgMusic" autoplay loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-lavieenrose.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <h1>Click the blocks to reveal something special! ❤️</h1>
+    <div class="game-container">
+        <script>
+            for (let i = 0; i < 15; i++) {
+                document.write('<div class="block" onclick="removeBlock(this)"></div>');
+            }
+        </script>
+    </div>
+    
+    <div class="hidden-message">Can I court you? 💖</div>
+    <div class="buttons">
+        <button class="yes" id="yesButton" onclick="sayYes()">Yes 💖</button>
+        <button class="no" id="noButton" onmouseover="moveNoButton()">No 😢</button>
+    </div>
+
+    <img src="https://i.imgur.com/yzQ9C8U.png" alt="Loopy" class="loopy">
+</body>
+</html>
