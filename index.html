@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Game Before the Big Question ❤️</title>
+    <title>Catch the Hearts! ❤️</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             text-align: center;
-            background: url('https://i.imgur.com/WxVaEwl.jpg') no-repeat center center/cover;
+            background-color: #ffdde1;
             overflow: hidden;
             margin: 0;
             height: 100vh;
@@ -19,23 +19,24 @@
         }
 
         .game-container {
-            display: grid;
-            grid-template-columns: repeat(5, 60px);
-            gap: 10px;
-            margin-top: 20px;
+            position: relative;
+            width: 100vw;
+            height: 60vh;
+            overflow: hidden;
         }
 
-        .block {
-            width: 60px;
-            height: 60px;
-            background-color: #ff4d79;
-            border-radius: 10px;
+        .heart {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: red;
+            clip-path: polygon(50% 15%, 85% 15%, 100% 40%, 50% 100%, 0 40%, 15% 15%);
             cursor: pointer;
-            transition: transform 0.2s, opacity 0.3s;
+            transition: transform 0.2s;
         }
 
-        .block:hover {
-            transform: scale(1.1);
+        .heart:hover {
+            transform: scale(1.2);
         }
 
         .hidden-message, .question-container {
@@ -89,12 +90,23 @@
 
         function startGame() {
             document.querySelector(".start-screen").style.display = "none";
-            document.querySelector(".game-container").style.display = "grid";
+            document.querySelector(".game-container").style.display = "block";
+            spawnHearts();
         }
 
-        function collectPoint(block) {
-            block.style.opacity = "0";
-            setTimeout(() => block.remove(), 300);
+        function spawnHearts() {
+            for (let i = 0; i < 15; i++) {
+                let heart = document.createElement("div");
+                heart.classList.add("heart");
+                heart.style.top = Math.random() * 50 + "vh";
+                heart.style.left = Math.random() * 90 + "vw";
+                heart.onclick = function () { collectHeart(heart); };
+                document.querySelector(".game-container").appendChild(heart);
+            }
+        }
+
+        function collectHeart(heart) {
+            heart.remove();
             score++;
             
             if (score === 15) {
@@ -131,17 +143,11 @@
 
     <div class="start-screen">
         <h1>Welcome to a Special Mini Game! 🎮</h1>
-        <p>Collect all the blocks to reveal a special question!</p>
+        <p>Catch all the hearts to reveal a special question!</p>
         <button onclick="startGame()">Start Game</button>
     </div>
 
-    <div class="game-container" style="display: none;">
-        <script>
-            for (let i = 0; i < 15; i++) {
-                document.write('<div class="block" onclick="collectPoint(this)"></div>');
-            }
-        </script>
-    </div>
+    <div class="game-container" style="display: none;"></div>
     
     <div class="question-container">Can I court you? 💖</div>
     <div class="buttons">
@@ -152,4 +158,3 @@
     <img src="https://i.imgur.com/yzQ9C8U.png" alt="Loopy" class="loopy">
 </body>
 </html>
-
