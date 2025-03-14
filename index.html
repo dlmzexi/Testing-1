@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Can I Court You? ❤️</title>
+    <title>Mini Game Before the Big Question ❤️</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -38,7 +38,7 @@
             transform: scale(1.1);
         }
 
-        .hidden-message {
+        .hidden-message, .question-container {
             display: none;
             margin-top: 20px;
             font-size: 24px;
@@ -85,16 +85,21 @@
         }
     </style>
     <script>
-        let blocksRemaining = 15;
-        let yesButtonSize = 18;
+        let score = 0;
 
-        function removeBlock(block) {
+        function startGame() {
+            document.querySelector(".start-screen").style.display = "none";
+            document.querySelector(".game-container").style.display = "grid";
+        }
+
+        function collectPoint(block) {
             block.style.opacity = "0";
             setTimeout(() => block.remove(), 300);
-            blocksRemaining--;
+            score++;
             
-            if (blocksRemaining === 0) {
-                document.querySelector(".hidden-message").style.display = "block";
+            if (score === 15) {
+                document.querySelector(".game-container").style.display = "none";
+                document.querySelector(".question-container").style.display = "block";
                 document.querySelector(".buttons").style.display = "block";
             }
         }
@@ -115,11 +120,6 @@
             let y = Math.random() * (window.innerHeight - 50);
             btn.style.left = x + "px";
             btn.style.top = y + "px";
-
-            let yesButton = document.getElementById("yesButton");
-            yesButtonSize += 5;
-            yesButton.style.fontSize = yesButtonSize + "px";
-            yesButton.style.padding = (yesButtonSize / 2) + "px " + (yesButtonSize) + "px";
         }
     </script>
 </head>
@@ -129,21 +129,27 @@
         Your browser does not support the audio element.
     </audio>
 
-    <h1>Click the blocks to reveal something special! ❤️</h1>
-    <div class="game-container">
+    <div class="start-screen">
+        <h1>Welcome to a Special Mini Game! 🎮</h1>
+        <p>Collect all the blocks to reveal a special question!</p>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div class="game-container" style="display: none;">
         <script>
             for (let i = 0; i < 15; i++) {
-                document.write('<div class="block" onclick="removeBlock(this)"></div>');
+                document.write('<div class="block" onclick="collectPoint(this)"></div>');
             }
         </script>
     </div>
     
-    <div class="hidden-message">Can I court you? 💖</div>
+    <div class="question-container">Can I court you? 💖</div>
     <div class="buttons">
-        <button class="yes" id="yesButton" onclick="sayYes()">Yes 💖</button>
+        <button class="yes" onclick="sayYes()">Yes 💖</button>
         <button class="no" id="noButton" onmouseover="moveNoButton()">No 😢</button>
     </div>
 
     <img src="https://i.imgur.com/yzQ9C8U.png" alt="Loopy" class="loopy">
 </body>
 </html>
+
