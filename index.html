@@ -3,164 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catch the Hearts! ❤️</title>
+    <title>Block Blast</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
             text-align: center;
-            background-color: #ffdde1;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
             overflow: hidden;
-            margin: 0;
-            height: 100vh;
+        }
+        canvas {
+            background: #000;
+            display: block;
+            margin: auto;
+            touch-action: none;
+        }
+        .menu {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
+            height: 100vh;
         }
-
-        .game-container {
-            position: relative;
-            width: 100vw;
-            height: 60vh;
-            overflow: hidden;
-        }
-
-        .heart {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background: red;
-            clip-path: polygon(50% 15%, 85% 15%, 100% 40%, 50% 100%, 0 40%, 15% 15%);
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .heart:hover {
-            transform: scale(1.2);
-        }
-
-        .hidden-message, .question-container {
+        .hidden {
             display: none;
-            margin-top: 20px;
-            font-size: 24px;
-            color: black;
-            font-weight: bold;
         }
-
-        .buttons {
-            display: none;
-            margin-top: 20px;
-        }
-
         button {
-            font-size: 18px;
-            padding: 12px 20px;
-            border: none;
+            padding: 10px 20px;
+            font-size: 20px;
             cursor: pointer;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .yes {
-            background-color: #ff4d79;
+            background-color: #ff5733;
+            border: none;
             color: white;
-            font-weight: bold;
-            transition: font-size 0.3s ease;
+            border-radius: 5px;
+            margin: 10px;
         }
-
-        .yes:hover {
-            background-color: #ff1a4d;
-        }
-
-        .no {
-            background-color: #999;
-            color: white;
-            position: absolute;
-        }
-
-        .loopy {
-            width: 150px;
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+        .exit-button {
+            background-color: #d9534f;
         }
     </style>
-    <script>
-        let score = 0;
-        let yesButtonSize = 18;
-
-        function startGame() {
-            document.querySelector(".start-screen").style.display = "none";
-            document.querySelector(".game-container").style.display = "block";
-            spawnHearts();
-        }
-
-        function spawnHearts() {
-            for (let i = 0; i < 15; i++) {
-                let heart = document.createElement("div");
-                heart.classList.add("heart");
-                heart.style.top = Math.random() * 50 + "vh";
-                heart.style.left = Math.random() * 90 + "vw";
-                heart.onclick = function () { collectHeart(heart); };
-                document.querySelector(".game-container").appendChild(heart);
-            }
-        }
-
-        function collectHeart(heart) {
-            heart.remove();
-            score++;
-            
-            if (score === 15) {
-                document.querySelector(".game-container").style.display = "none";
-                document.querySelector(".question-container").style.display = "block";
-                document.querySelector(".buttons").style.display = "block";
-            }
-        }
-
-        function sayYes() {
-            document.body.innerHTML = `
-                <div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column;">
-                    <h1>Yay! ❤️</h1>
-                    <p>You just made me the happiest person alive! 😍</p>
-                    <img src="https://i.imgur.com/yzQ9C8U.png" alt="Loopy Happy" width="200">
-                </div>
-            `;
-        }
-
-        function moveNoButton() {
-            let btn = document.getElementById("noButton");
-            let x = Math.random() * (window.innerWidth - 100);
-            let y = Math.random() * (window.innerHeight - 50);
-            btn.style.left = x + "px";
-            btn.style.top = y + "px";
-            
-            let yesButton = document.querySelector(".yes");
-            yesButtonSize += 5;
-            yesButton.style.fontSize = yesButtonSize + "px";
-        }
-    </script>
 </head>
 <body>
-    <audio id="bgMusic" autoplay loop>
-        <source src="https://www.bensound.com/bensound-music/bensound-lavieenrose.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-
-    <div class="start-screen">
-        <h1>Welcome to a Special Mini Game! 🎮</h1>
-        <p>Catch all the hearts to reveal a special question!</p>
+    <div id="menu" class="menu">
+        <h1>Block Blast</h1>
         <button onclick="startGame()">Start Game</button>
+        <button class="exit-button" onclick="openLovePrompt()">Exit</button>
+    </div>
+    <div id="gameContainer" class="hidden">
+        <h1>Block Blast</h1>
+        <p>Level: <span id="level">1</span> | Lives: <span id="lives">3</span></p>
+        <canvas id="gameCanvas" width="480" height="320"></canvas>
     </div>
 
-    <div class="game-container" style="display: none;"></div>
-    
-    <div class="question-container">Can I court you? 💖</div>
-    <div class="buttons">
-        <button class="yes" onclick="sayYes()">Yes 💖</button>
-        <button class="no" id="noButton" onmouseover="moveNoButton()">No 😢</button>
-    </div>
+    <script>
+        function startGame() {
+            document.getElementById("menu").classList.add("hidden");
+            document.getElementById("gameContainer").classList.remove("hidden");
+        }
 
-    <img src="https://i.imgur.com/yzQ9C8U.png" alt="Loopy" class="loopy">
+        function openLovePrompt() {
+            document.body.innerHTML = `
+                <html>
+                <head>
+                    <title>Can I Court You? ❤️</title>
+                    <style>
+                        body {
+                            font-family: 'Arial', sans-serif;
+                            text-align: center;
+                            background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
+                            overflow: hidden;
+                            margin: 0;
+                            height: 100vh;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            flex-direction: column;
+                        }
+                        h1, p {
+                            color: black;
+                        }
+                        .container {
+                            background: white;
+                            padding: 30px;
+                            border-radius: 15px;
+                            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+                        }
+                        .buttons {
+                            margin-top: 20px;
+                        }
+                        button {
+                            font-size: 18px;
+                            padding: 12px 20px;
+                            border: none;
+                            cursor: pointer;
+                            border-radius: 8px;
+                            transition: 0.3s;
+                        }
+                        .yes {
+                            background-color: #ff4d79;
+                            color: white;
+                            font-weight: bold;
+                        }
+                        .yes:hover {
+                            background-color: #ff1a4d;
+                        }
+                        .no {
+                            background-color: #999;
+                            color: white;
+                            font-weight: bold;
+                            position: absolute;
+                        }
+                        .heart {
+                            position: absolute;
+                            color: rgba(255, 255, 255, 0.8);
+                            font-size: 30px;
+                            animation: floatUp 5s infinite;
+                        }
+                        @keyframes floatUp {
+                            0% {
+                                transform: translateY(100vh);
+                                opacity: 1;
+                            }
+                            100% {
+                                transform: translateY(-10vh);
+                                opacity: 0;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>Can I court you? ❤️</h1>
+                        <p>I've been waiting to ask you this... Will you give me the chance to prove my love? 💕</p>
+                        <div class="buttons">
+                            <button class="yes" id="yesButton" onclick="sayYes()">Yes 💖</button>
+                            <button class="no" id="noButton" onmouseover="moveNoButton()">No 😢</button>
+                        </div>
+                    </div>
+                    <script>
+                        let yesButtonSize = 18;
+                        function sayYes() {
+                            document.body.innerHTML = \`
+                                <div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column;">
+                                    <h1>Yay! ❤️</h1>
+                                    <p>You just made me the happiest person alive! 😍</p>
+                                    <p>Can't wait to start this journey with you! 💕</p>
+                                </div>
+                            \`;
+                        }
+                        function moveNoButton() {
+                            let btn = document.getElementById("noButton");
+                            let x = Math.random() * (window.innerWidth - 100);
+                            let y = Math.random() * (window.innerHeight - 50);
+                            btn.style.left = x + "px";
+                            btn.style.top = y + "px";
+
+                            let yesButton = document.getElementById("yesButton");
+                            yesButtonSize += 5;
+                            yesButton.style.fontSize = yesButtonSize + "px";
+                            yesButton.style.padding = (yesButtonSize / 2) + "px " + (yesButtonSize) + "px";
+                        }
+                        function createHearts() {
+                            setInterval(() => {
+                                let heart = document.createElement("div");
+                                heart.classList.add("heart");
+                                heart.innerHTML = "❤️";
+                                heart.style.left = Math.random() * 100 + "vw";
+                                heart.style.animationDuration = (Math.random() * 3 + 2) + "s";
+                                document.body.appendChild(heart);
+                                setTimeout(() => heart.remove(), 5000);
+                            }, 300);
+                        }
+                        window.onload = createHearts;
+                    </script>
+                </body>
+                </html>
+            `;
+        }
+    </script>
 </body>
 </html>
