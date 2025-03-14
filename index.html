@@ -184,19 +184,39 @@
                     }
                 }
             }
+            if (rightPressed) paddleX = Math.min(canvas.width - paddleWidth, paddleX + 5);
+            if (leftPressed) paddleX = Math.max(0, paddleX - 5);
+
             ballX += ballDX;
             ballY += ballDY;
             requestAnimationFrame(draw);
         }
 
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowRight") rightPressed = true;
+            if (event.key === "ArrowLeft") leftPressed = true;
+        });
+
+        document.addEventListener("keyup", (event) => {
+            if (event.key === "ArrowRight") rightPressed = false;
+            if (event.key === "ArrowLeft") leftPressed = false;
+        });
+
         function openLovePrompt() {
             document.body.innerHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: pink;">
                     <h1>Can I court you? ❤️</h1>
-                    <button onclick="sayYes()" style="font-size: 20px; padding: 10px;">Yes 💖</button>
+                    <button id="yesButton" onclick="sayYes()" style="font-size: 20px; padding: 10px; transition: 0.3s;">Yes 💖</button>
                     <button id="noButton" onmouseover="moveNoButton()" style="position: absolute;">No 😢</button>
                 </div>
             `;
+
+            document.getElementById("yesButton").onmouseover = function() {
+                this.style.transform = "scale(1.5)";
+            };
+            document.getElementById("yesButton").onmouseleave = function() {
+                this.style.transform = "scale(1)";
+            };
 
             window.sayYes = function () {
                 document.body.innerHTML = `<h1 style="color: red;">Yay! You said Yes! ❤️</h1>`;
@@ -204,10 +224,8 @@
 
             window.moveNoButton = function () {
                 let btn = document.getElementById("noButton");
-                let x = Math.random() * (window.innerWidth - 100);
-                let y = Math.random() * (window.innerHeight - 50);
-                btn.style.left = `${x}px`;
-                btn.style.top = `${y}px`;
+                btn.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
+                btn.style.top = `${Math.random() * (window.innerHeight - 50)}px`;
             };
         }
     </script>
