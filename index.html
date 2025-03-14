@@ -102,38 +102,33 @@
         }
 
         function openLovePrompt() {
-            document.body.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: pink;">
-                    <h1>Can I court you? ❤️</h1>
-                    <button id="yesButton" onclick="sayYes()" style="font-size: 20px; padding: 10px; transition: 0.3s;">Yes 💖</button>
-                    <button id="noButton" onmouseover="moveNoButton()" style="position: absolute;">No 😢</button>
-                </div>
-            `;
+    document.body.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: pink;">
+            <h1>Can I court you? ❤️</h1>
+            <button id="yesButton" onclick="sayYes()" style="font-size: 20px; padding: 10px; transition: 0.3s;">
+                <span id="yesText">Yes 💖</span>
+            </button>
+            <button id="noButton" onmouseover="moveNoButton()" style="position: absolute;">No 😢</button>
+        </div>
+    `;
 
-            document.getElementById("yesButton").onmouseover = function() {
-                this.style.transform = "scale(1.5)";
-            };
-            document.getElementById("yesButton").onmouseleave = function() {
-                this.style.transform = "scale(1)";
-            };
+    window.sayYes = function () {
+        document.body.innerHTML = `<h1 style="color: red;">Yay! You said Yes! ❤️</h1>`;
+    };
 
-            window.sayYes = function () {
-                document.body.innerHTML = `<h1 style="color: red;">Yay! You said Yes! ❤️</h1>`;
-            };
+    window.moveNoButton = function () {
+        let btn = document.getElementById("noButton");
+        let yesText = document.getElementById("yesText");
 
-            window.moveNoButton = function () {
-                let btn = document.getElementById("noButton");
-                let yesBtn = document.getElementById("yesButton");
-                
-                // Move the "No" button
-                btn.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
-                btn.style.top = `${Math.random() * (window.innerHeight - 50)}px`;
+        // Move "No" button randomly
+        btn.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
+        btn.style.top = `${Math.random() * (window.innerHeight - 50)}px`;
 
-                // Enlarge the "Yes" button
-                yesBtn.style.transform = "scale(2)";
-                setTimeout(() => { yesBtn.style.transform = "scale(1.5)"; }, 300);
-            };
-        }
+        // Enlarge "Yes" text
+        yesText.style.fontSize = "30px";
+        setTimeout(() => { yesText.style.fontSize = "25px"; }, 300);
+    };
+}
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
